@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"net/url"
 	"os"
 	"url-shortener/models"
 
@@ -13,6 +14,17 @@ func LinkHandler(c *fiber.Ctx) error {
 	if err := c.BodyParser(link); err != nil {
 		return err
 	}
+
+	if(link.ShortLink == "" || link.OriginalLink == "") {
+		return fiber.NewError(fiber.StatusBadRequest, "Link alias and redirect link cannot be empty")
+	}
+
+	u, err := url.ParseRequestURI(link.OriginalLink)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid redirect link")
+	}
+	
+	link.OriginalLink = u.String()
 
 	fileContent, err := models.GetLinks()
 	if err != nil {
@@ -53,7 +65,7 @@ func LinkHandler(c *fiber.Ctx) error {
 func MapHandler(c *fiber.Ctx) error {
 	links, err := models.GetLinks()
 	if err != nil {
-		return c.SendString("Error while fetching links")
+		return fiber.NewError(fiber.StatusBadRequest, "Error while fetching links")
 	}
 
 	for _, value := range links {
