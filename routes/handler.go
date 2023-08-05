@@ -47,13 +47,13 @@ func LinkHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.SendString("LinkHandler")
+	return c.SendString("Link added successfully!")
 }
 
 func MapHandler(c *fiber.Ctx) error {
 	links, err := models.GetLinks()
 	if err != nil {
-		return err
+		return c.SendString("Error while fetching links")
 	}
 
 	for _, value := range links {
@@ -61,5 +61,5 @@ func MapHandler(c *fiber.Ctx) error {
 			return c.Redirect(value.OriginalLink)
 		}
 	}
-	return c.SendString("MapHandler")
+	return c.SendString("Link could not be found. Please check the link and try again.")
 }
