@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"url-shortener/models"
+	"url-shortener/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,19 +20,24 @@ func LinkHandler(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Link alias and redirect link cannot be empty")
 	}
 
+	if(utils.AlreadyExists(link.ShortLink)) {
+		return fiber.NewError(fiber.StatusBadRequest, "Link alias already exists")
+	}
+
+
 	u, err := url.ParseRequestURI(link.OriginalLink)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid redirect link")
 	}
 	
-	link.OriginalLink = u.String()
+	link.OriginalLink = u.String() //set the original link to the parsed url
 
 	fileContent, err := models.GetLinks()
 	if err != nil {
 		return err
 	}
 
-	fileContent = append(fileContent, *link)
+	fileContent = append(fileContent, *link) //Add link from request to file content
 
 	marshalledFileContent, err := json.MarshalIndent(fileContent, "", "    ")
 	if err != nil {
