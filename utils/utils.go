@@ -10,7 +10,7 @@ func AlreadyExists(value string) bool {
 	}
 
 	for i := 0; i < len(links); i++ {
-		if links[i].ShortLink == value {
+		if links[i].Alias == value {
 			return true
 		}
 	}

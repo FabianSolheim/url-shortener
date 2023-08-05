@@ -15,6 +15,6 @@ func main() {
 	app.Get("/*", routes.MapHandler)
 	app.Post("/link", routes.LinkHandler)
 	
-	fmt.Println("Starting the server on :8080")
-	log.Fatal(app.Listen(":8080"))
+	fmt.Println("Starting the server on :3000")
+	log.Fatal(app.Listen(":3000"))
 }

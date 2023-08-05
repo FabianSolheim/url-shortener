@@ -16,21 +16,21 @@ func LinkHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	if(link.ShortLink == "" || link.OriginalLink == "") {
+	if(link.Alias == "" || link.Link == "") {
 		return fiber.NewError(fiber.StatusBadRequest, "Link alias and redirect link cannot be empty")
 	}
 
-	if(utils.AlreadyExists(link.ShortLink)) {
+	if(utils.AlreadyExists(link.Alias)) {
 		return fiber.NewError(fiber.StatusBadRequest, "Link alias already exists")
 	}
 
 
-	u, err := url.ParseRequestURI(link.OriginalLink)
+	u, err := url.ParseRequestURI(link.Link)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid redirect link")
 	}
 	
-	link.OriginalLink = u.String() //set the original link to the parsed url
+	link.Link = u.String() //set the original link to the parsed url
 
 	fileContent, err := models.GetLinks()
 	if err != nil {
@@ -74,9 +74,11 @@ func MapHandler(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Error while fetching links")
 	}
 
+	cleanPath := c.Path()[1:]
+
 	for _, value := range links {
-		if c.Path() == value.ShortLink {
-			return c.Redirect(value.OriginalLink)
+		if cleanPath == value.Alias {
+			return c.Redirect(value.Link)
 		}
 	}
 	return c.SendString("Link could not be found. Please check the link and try again.")

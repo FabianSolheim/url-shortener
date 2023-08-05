@@ -6,8 +6,8 @@ import (
 )
 
 type Link struct {
-    ShortLink    string `json:"shortLink"`
-    OriginalLink string `json:"originalLink"`
+    Alias    string `json:"alias"`
+    Link string `json:"link"`
 }
 
 
