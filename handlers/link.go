@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"fmt"
-	"net/url"
 	"url-shortener/models"
 	"url-shortener/repository"
+	"url-shortener/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,16 +24,19 @@ func (h *LinkHandler) CreateLink(c *fiber.Ctx) error {
 		return err
 	}
 
-	if link.Alias == "" || link.Link == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Link alias or redirect link cannot be empty")
+	a, err := utils.ParseAlias(link.Alias)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid alias")
 	}
 
-	u, err := url.ParseRequestURI(link.Link)
+	l, err := utils.ParseAndValidateUrl(link.Link)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid redirect link")
 	}
 
-	link.Link = u.String()
+
+	link.Link = l.String()
+	link.Alias = a
 
 	newLink, err := h.Repository.CreateLink(link)
 	if err != nil {
