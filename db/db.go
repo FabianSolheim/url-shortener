@@ -13,11 +13,12 @@ func CreateSQLLiteConnection() *sqlx.DB {
 	if (err != nil) {
 		log.Fatal(err)
 	}
+
 	db.Exec(`CREATE TABLE link (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		alias TEXT NOT NULL UNIQUE,
 		link TEXT NOT NULL
-	);`)
+	);`) // Since i'm using an in memory db, I need to create the table on startup
 
 	return db
 }
