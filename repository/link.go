@@ -24,19 +24,14 @@ func (s *LinkRepository) GetOneLink(alias string) (models.Link, error) {
 	return link, nil
 }
 
-func (s *LinkRepository) CreateLink(link *models.Link) (int, error) {
+func (s *LinkRepository) CreateLink(link *models.Link) (string, error) {
 	stmt := "INSERT INTO link (alias, link) VALUES (?, ?)"
-	res, err := s.Conn.Exec(stmt, link.Alias, link.Link)
+	_, err := s.Conn.Exec(stmt, link.Alias, link.Link)
 
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return int(id), nil
+	return link.Alias, nil
 
 }

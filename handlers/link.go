@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"fmt"
@@ -40,7 +40,7 @@ func (h *LinkHandler) CreateLink(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Alias is already taken")
 	}
 
-	return c.SendString("Link added successfully: " + string(newLink))
+	return c.SendString("Link added successfully: " + newLink)
 }
 
 func (h *LinkHandler) GetLink(c *fiber.Ctx) error {
