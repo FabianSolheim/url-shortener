@@ -1,36 +1,42 @@
 package repository
 
 import (
-	"log"
-	"url-shortener/db"
 	"url-shortener/models"
+
+	"github.com/jmoiron/sqlx"
 )
 
-func GetLink(alias string) (models.Link, error) {
-	DB, err := db.DB()
-	if err != nil {
-		log.Fatal(err)
-	}
+type LinkRepository struct {
+	Conn *sqlx.DB
+}
 
+func NewLinkRepository(conn *sqlx.DB) *LinkRepository {
+	return &LinkRepository{Conn: conn}
+}
+
+
+func (s *LinkRepository) GetOneLink(alias string) (models.Link, error) {
 	link := models.Link{}
-	err = DB.Get(&link, "SELECT * FROM link WHERE alias=?", alias)
+	err := s.Conn.Get(&link, "SELECT alias, link, id FROM link WHERE alias=?", alias)
 	if err != nil {
 		return link, err
 	}
 	return link, nil
 }
 
-func CreateLink(link *models.Link) (models.Link, error) {
-	DB, err := db.DB()
+func (s *LinkRepository) CreateLink(link *models.Link) (int, error) {
+	stmt := "INSERT INTO link (alias, link) VALUES (?, ?)"
+	res, err := s.Conn.Exec(stmt, link.Alias, link.Link)
+
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
 
-	stmt := "INSERT INTO link (alias, link) VALUES (?, ?)"
-	_, err = DB.Exec(stmt, link.Alias, link.Link)
+	id, err := res.LastInsertId()
 	if err != nil {
-		return *link, err
+		return 0, err
 	}
-	return *link, nil
+
+	return int(id), nil
 
 }

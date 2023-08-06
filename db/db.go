@@ -7,11 +7,17 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func DB() (*sqlx.DB, error) {
-	db, err := sqlx.Connect("sqlite3", "file::memory:?cache=shared")
+func CreateSQLLiteConnection() *sqlx.DB {
+	db := sqlx.MustConnect("sqlite3", "file::memory:?cache=shared")
+	err := db.Ping()
 	if (err != nil) {
 		log.Fatal(err)
 	}
+	db.Exec(`CREATE TABLE link (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		alias TEXT NOT NULL UNIQUE,
+		link TEXT NOT NULL
+	);`)
 
-	return db, nil
+	return db
 }

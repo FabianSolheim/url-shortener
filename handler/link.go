@@ -1,6 +1,7 @@
-package routes
+package handler
 
 import (
+	"fmt"
 	"net/url"
 	"url-shortener/models"
 	"url-shortener/repository"
@@ -8,7 +9,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func LinkHandler(c *fiber.Ctx) error {
+type LinkHandler struct {
+	Repository        *repository.LinkRepository
+}
+
+func NewLinkHandler(repository *repository.LinkRepository) *LinkHandler {
+	return &LinkHandler{Repository: repository}
+}
+
+
+func (h *LinkHandler) CreateLink(c *fiber.Ctx) error {
 	link := &models.Link{}
 	if err := c.BodyParser(link); err != nil {
 		return err
@@ -18,11 +28,6 @@ func LinkHandler(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Link alias or redirect link cannot be empty")
 	}
 
-	_, err := repository.GetLink(link.Alias)
-	if err == nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Link alias already exists")
-	}
-
 	u, err := url.ParseRequestURI(link.Link)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid redirect link")
@@ -30,18 +35,24 @@ func LinkHandler(c *fiber.Ctx) error {
 
 	link.Link = u.String()
 
-	newLink, err := repository.CreateLink(link)
+	newLink, err := h.Repository.CreateLink(link)
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Error while creating link")
+		return fiber.NewError(fiber.StatusBadRequest, "Alias is already taken")
 	}
 
-	return c.SendString("Link added successfully: " + newLink.Alias)
+	return c.SendString("Link added successfully: " + string(newLink))
 }
 
-func MapHandler(c *fiber.Ctx) error {
+func (h *LinkHandler) GetLink(c *fiber.Ctx) error {
+
+	if c.Path() == "/favicon.ico" { //Better way to do this?
+		return c.SendStatus(fiber.StatusNoContent)
+	}
+
 	alias := c.Path()[1:]
-	link, err := repository.GetLink(alias)
+	link, err := h.Repository.GetOneLink(alias)
 	if err != nil {
+		fmt.Println(err)
 		return fiber.NewError(fiber.StatusBadRequest, "Could not find link, please check the alias")
 	}
 
