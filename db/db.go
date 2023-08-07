@@ -8,17 +8,17 @@ import (
 )
 
 func CreateSQLLiteConnection() *sqlx.DB {
-	db := sqlx.MustConnect("sqlite3", "file::memory:?cache=shared")
+	db := sqlx.MustConnect("sqlite3", "_data.db")
 	err := db.Ping()
 	if (err != nil) {
 		log.Fatal(err)
 	}
 
-	db.Exec(`CREATE TABLE link (
+	db.Exec(`CREATE TABLE IF NOT EXISTS link (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		alias TEXT NOT NULL UNIQUE,
 		link TEXT NOT NULL
-	);`) // Since i'm using an in memory db, I need to create the table on startup
+	);`) //since i only have one table, i'll just create it here
 
 	return db
 }
