@@ -27,7 +27,7 @@ func fiberInstance(lc fx.Lifecycle, linkHandlers *handlers.LinkHandler) *fiber.A
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			fmt.Println("Starting fiber server on port 8080")
-			go app.Listen(":" + port)
+			go app.Listen("0.0.0.0:" + port)
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
