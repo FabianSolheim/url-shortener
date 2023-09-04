@@ -2,23 +2,31 @@ package db
 
 import (
 	"log"
+	"os"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/pressly/goose/v3"
 )
 
-func CreateSQLLiteConnection() *sqlx.DB {
-	db := sqlx.MustConnect("sqlite3", "_data.db")
+func CreatePGConnection() *sqlx.DB {
+	connection_string := os.Getenv("POSTGRES_URL")
+
+	db := sqlx.MustConnect("pgx", connection_string)
+	
 	err := db.Ping()
 	if (err != nil) {
 		log.Fatal(err)
 	}
+	err = goose.SetDialect("postgres")
+    if err != nil {
+        log.Fatalf("Error setting dialect: %v", err)
+    }
 
-	db.Exec(`CREATE TABLE IF NOT EXISTS link (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		alias TEXT NOT NULL UNIQUE,
-		link TEXT NOT NULL
-	);`) //since i only have one table, i'll just create it here
+    err = goose.Run("up", db.DB, "db/migrations")
+    if err != nil {
+        log.Fatalf("Error running migrations: %v", err)
+    }
 
 	return db
 }

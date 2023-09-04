@@ -10,7 +10,7 @@ func ParseAlias(alias string) (string, error) {
 	alias = strings.TrimSpace(alias)
 
 	if alias == "" {
-		return "", fmt.Errorf("alias cannot be empty")
+		return "", fmt.Errorf("Alias cannot be empty")
 	}
 
 	alias = strings.ReplaceAll(alias, " ", "-")

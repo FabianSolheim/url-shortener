@@ -34,7 +34,6 @@ func (h *LinkHandler) CreateLink(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid redirect link")
 	}
 
-
 	link.Link = l.String()
 	link.Alias = a
 
@@ -47,11 +46,6 @@ func (h *LinkHandler) CreateLink(c *fiber.Ctx) error {
 }
 
 func (h *LinkHandler) GetLink(c *fiber.Ctx) error {
-
-	if c.Path() == "/favicon.ico" { //Better way to do this?
-		return c.SendStatus(fiber.StatusNoContent)
-	}
-
 	alias := c.Path()[1:]
 	link, err := h.Repository.GetOneLink(alias)
 	if err != nil {
