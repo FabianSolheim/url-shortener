@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"url-shortener/db"
 	"url-shortener/handlers"
@@ -26,7 +27,7 @@ func fiberInstance(lc fx.Lifecycle, linkHandlers *handlers.LinkHandler) *fiber.A
 
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
-			fmt.Println("Starting fiber server on port 8080")
+			fmt.Println("Starting fiber server on port:" + port)
 			go app.Listen("0.0.0.0:" + port)
 			return nil
 		},
@@ -40,8 +41,9 @@ func fiberInstance(lc fx.Lifecycle, linkHandlers *handlers.LinkHandler) *fiber.A
 
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		fmt.Println("No .env file found")
+	err := godotenv.Load()
+	if err != nil {
+	  log.Fatal("Error loading .env file")
 	}
 
 	fx.New(
