@@ -42,7 +42,9 @@ func (h *LinkHandler) CreateLink(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Alias is already taken")
 	}
 
-	return c.SendString("Link added successfully: " + newLink)
+	responseUrl := c.BaseURL() + "/" + newLink
+
+	return c.SendString(responseUrl)
 }
 
 func (h *LinkHandler) GetLink(c *fiber.Ctx) error {
