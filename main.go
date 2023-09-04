@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"url-shortener/db"
 	"url-shortener/handlers"
 	"url-shortener/repository"
@@ -13,6 +14,10 @@ import (
 )
 
 func fiberInstance(lc fx.Lifecycle, linkHandlers *handlers.LinkHandler) *fiber.App {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
 	app := fiber.New()
 	app.Get("/*", linkHandlers.GetLink)
@@ -22,7 +27,7 @@ func fiberInstance(lc fx.Lifecycle, linkHandlers *handlers.LinkHandler) *fiber.A
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			fmt.Println("Starting fiber server on port 8080")
-			go app.Listen(":8080")
+			go app.Listen(":" + port)
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
