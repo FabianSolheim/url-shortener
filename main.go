@@ -41,8 +41,9 @@ func fiberInstance(lc fx.Lifecycle, linkHandlers *handlers.LinkHandler) *fiber.A
 
 
 func main() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Fatal(err)
+	err := godotenv.Load()
+	if err != nil && !os.IsNotExist(err) {
+		log.Fatal("Error loading .env file")
 	}
 
 	fx.New(
